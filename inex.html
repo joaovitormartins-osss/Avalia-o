@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FleetCore | Gestão de Locadora</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet" href="inex.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <i class="fa-solid fa-car-side"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">FleetCore</span>
+        <span class="brand-sub">Gestão de Frota</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="mainNav">
+      <button class="nav-item active" data-section="dashboard">
+        <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-section="catalogo">
+        <i class="fa-solid fa-layer-group"></i><span>Catálogo</span>
+      </button>
+      <button class="nav-item" data-section="veiculos">
+        <i class="fa-solid fa-car-side"></i><span>Veículos</span>
+      </button>
+      <button class="nav-item" data-section="clientes">
+        <i class="fa-solid fa-users"></i><span>Clientes</span>
+      </button>
+      <button class="nav-item" data-section="locacoes">
+        <i class="fa-solid fa-file-signature"></i><span>Locações</span>
+      </button>
+      <button class="nav-item" data-section="manutencao">
+        <i class="fa-solid fa-screwdriver-wrench"></i><span>Manutenção</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="op-status"><span class="dot dot-online"></span> API conectada</div>
+      <span class="version">v1.0 · Enterprise</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-area">
+
+    <header class="topbar">
+      <button class="burger" id="burgerBtn"><i class="fa-solid fa-bars"></i></button>
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+
+      <div class="topbar-actions">
+        <div class="global-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="globalSearch" placeholder="">
+        </div>
+        <div class="user-chip">
+          <div class="avatar">GA</div>
+          <div class="user-meta">
+            <span class="user-name">Gerência Administrativa</span>
+            <span class="user-role">Matriz · São Paulo</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ================= DASHBOARD ================= -->
+      <section class="view active" id="view-dashboard">
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-blue"><i class="fa-solid fa-car"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-label">Veículos Disponíveis</span>
+              <span class="kpi-value" id="kpiDisponiveis">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-amber"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-label">Em Manutenção</span>
+              <span class="kpi-value" id="kpiManutencao">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-purple"><i class="fa-solid fa-users"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-label">Clientes Totais</span>
+              <span class="kpi-value" id="kpiClientes">0</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-green"><i class="fa-solid fa-file-signature"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-label">Locações Ativas</span>
+              <span class="kpi-value" id="kpiLocacoes">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRÁFICOS -->
+        <div class="dash-grid" style="margin-bottom: 20px;">
+          <!-- Gráfico de Evolução Mensal -->
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Evolução do Faturamento por Mês</h2>
+            </div>
+            <div style="position: relative; height: 260px; width: 100%;">
+              <canvas id="chartEvolucaoMensal"></canvas>
+            </div>
+          </div>
+
+          <!-- Ranking de Desempenho -->
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Rankings de Desempenho</h2>
+            </div>
+            <div class="ranking-tabs">
+              <button class="chip active" id="btnRankCarros" onclick="alternarRanking('carros')">Top Carros</button>
+              <button class="chip" id="btnRankClientes" onclick="alternarRanking('clientes')">Top Clientes</button>
+            </div>
+            
+            <div id="wrapperRankCarros" style="position: relative; height: 210px; width: 100%; margin-top: 10px;">
+              <canvas id="chartTopCarros"></canvas>
+            </div>
+            <div id="wrapperRankClientes" style="position: relative; height: 210px; width: 100%; margin-top: 10px; display: none;">
+              <canvas id="chartTopClientes"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOCAÇÕES ATIVAS + FATURAMENTO -->
+        <div class="dash-grid">
+          <div class="panel panel-wide">
+            <div class="panel-head">
+              <h2>Locações Ativas</h2>
+              <button class="btn btn-ghost btn-sm" data-goto="locacoes">Ver todas <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Código</th><th>Cliente</th><th>Veículo</th><th>Retorno Previsto</th><th>Status</th><th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="dashLocacoesBody"></tbody>
+              </table>
+              <div class="empty-state" id="dashLocacoesEmpty" style="display:none;">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>Nenhuma locação ativa no momento.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Faturamento do Período</h2></div>
+            <div class="revenue-box">
+              <span class="revenue-value" id="revenueValue">R$ 0,00</span>
+              <span class="revenue-sub">Somatório de locações concluídas e em andamento</span>
+              <div class="revenue-bar"><div class="revenue-bar-fill" id="revenueBarFill"></div></div>
+            </div>
+            <div class="panel-head" style="margin-top:20px;"><h2>Atalhos</h2></div>
+            <div class="shortcut-grid">
+              <button class="shortcut" data-open-modal="veiculoModal"><i class="fa-solid fa-square-plus"></i>Novo Veículo</button>
+              <button class="shortcut" data-open-modal="clienteModal"><i class="fa-solid fa-user-plus"></i>Novo Cliente</button>
+              <button class="shortcut" data-open-modal="locacaoModal"><i class="fa-solid fa-file-circle-plus"></i>Nova Locação</button>
+              <button class="shortcut" data-open-modal="manutencaoModal"><i class="fa-solid fa-wrench"></i>Nova Manutenção</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CATÁLOGO ================= -->
+      <section class="view" id="view-catalogo">
+        <div class="catalog-hero">
+          <div class="catalog-hero-text">
+            <span class="eyebrow">Catálogo da Frota</span>
+            <h2 id="catalogFeaturedTitle">Selecione um veículo</h2>
+            <p id="catalogFeaturedDesc">Navegue pela frota em 3D e inicie uma locação em poucos cliques.</p>
+            <div class="catalog-hero-meta" id="catalogFeaturedMeta"></div>
+            <div class="catalog-hero-actions">
+              <button class="btn btn-primary" id="catalogRentBtn"><i class="fa-solid fa-key"></i> Iniciar Locação</button>
+              <button class="btn btn-ghost" id="catalogDetailsBtn"><i class="fa-solid fa-circle-info"></i> Detalhes</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-chips" id="categoryChips"></div>
+
+        <div class="coverflow-wrap">
+          <button class="coverflow-nav coverflow-prev" id="coverPrev"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="coverflow-stage" id="coverflowStage"></div>
+          <button class="coverflow-nav coverflow-next" id="coverNext"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div class="coverflow-dots" id="coverflowDots"></div>
+      </section>
+
+      <!-- ================= VEÍCULOS ================= -->
+      <section class="view" id="view-veiculos">
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="veiculoSearch" placeholder="Buscar por marca, modelo ou placa...">
+          </div>
+          <select id="veiculoStatusFilter" class="select-filter">
+            <option value="">Todos os status</option>
+            <option value="Disponível">Disponível</option>
+            <option value="Alugado">Alugado</option>
+            <option value="Em Manutenção">Em Manutenção</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          <button class="btn btn-primary" data-open-modal="veiculoModal"><i class="fa-solid fa-plus"></i> Novo Veículo</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Marca / Modelo</th><th>Ano</th><th>Placa</th><th>Categoria</th><th>Diária</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="veiculosBody"></tbody>
+            </table>
+            <div class="empty-state" id="veiculosEmpty" style="display:none;">
+              <i class="fa-regular fa-folder-open"></i><p>Nenhum veículo encontrado.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CLIENTES ================= -->
+      <section class="view" id="view-clientes">
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="clienteSearch" placeholder="Buscar por nome, CPF ou e-mail...">
+          </div>
+          <select id="clienteStatusFilter" class="select-filter">
+            <option value="">Todos os status</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          <button class="btn btn-primary" data-open-modal="clienteModal"><i class="fa-solid fa-plus"></i> Novo Cliente</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nome</th><th>CPF</th><th>Telefone</th><th>CNH</th><th>Validade CNH</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="clientesBody"></tbody>
+            </table>
+            <div class="empty-state" id="clientesEmpty" style="display:none;">
+              <i class="fa-regular fa-folder-open"></i><p>Nenhum cliente encontrado.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LOCAÇÕES ================= -->
+      <section class="view" id="view-locacoes">
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="locacaoSearch" placeholder="Buscar por código, cliente ou veículo...">
+          </div>
+          <select id="locacaoStatusFilter" class="select-filter">
+            <option value="">Todos os status</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Atrasada">Atrasada</option>
+            <option value="Concluída">Concluída</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+          <button class="btn btn-primary" data-open-modal="locacaoModal"><i class="fa-solid fa-plus"></i> Nova Locação</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Código</th><th>Cliente</th><th>Veículo</th><th>Início</th><th>Retorno Previsto</th><th>Valor</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="locacoesBody"></tbody>
+            </table>
+            <div class="empty-state" id="locacoesEmpty" style="display:none;">
+              <i class="fa-regular fa-folder-open"></i><p>Nenhuma locação encontrada.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MANUTENÇÃO ================= -->
+      <section class="view" id="view-manutencao">
+        <div class="toolbar">
+          <div class="toolbar-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="manutencaoSearch" placeholder="Buscar por veículo ou tipo...">
+          </div>
+          <select id="manutencaoStatusFilter" class="select-filter">
+            <option value="">Todos os status</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Concluída">Concluída</option>
+          </select>
+          <button class="btn btn-primary" data-open-modal="manutencaoModal"><i class="fa-solid fa-plus"></i> Nova Manutenção</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Veículo</th><th>Tipo</th><th>Início</th><th>Previsão</th><th>Custo</th><th>Status</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="manutencoesBody"></tbody>
+            </table>
+            <div class="empty-state" id="manutencoesEmpty" style="display:none;">
+              <i class="fa-regular fa-folder-open"></i><p>Nenhum registro de manutenção.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MODAIS (mantidos iguais) -->
+<!-- ============ MODAL: VEÍCULO ============ -->
+<div class="modal-overlay" id="veiculoModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="veiculoModalTitle">Novo Veículo</h3>
+      <button class="modal-close" data-close-modal="veiculoModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="veiculoForm" class="modal-body">
+      <input type="hidden" id="veiculoId">
+      <div class="form-grid">
+        <div class="field">
+          <label>Marca</label>
+          <input type="text" id="veiculoMarca" required placeholder="Ex: Toyota">
+        </div>
+        <div class="field">
+          <label>Modelo</label>
+          <input type="text" id="veiculoModelo" required placeholder="Ex: Corolla">
+        </div>
+        <div class="field">
+          <label>Ano</label>
+          <input type="text" id="veiculoAno" required maxlength="4" placeholder="2024" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>Placa</label>
+          <input type="text" id="veiculoPlaca" required maxlength="8" placeholder="ABC-1234">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="veiculoCategoria" required>
+            <option value="">Selecione</option>
+            <option>Hatch</option>
+            <option>Sedan</option>
+            <option>SUV</option>
+            <option>Picape</option>
+            <option>Luxo</option>
+            <option>Utilitário</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Valor da Diária (R$)</label>
+          <input type="number" id="veiculoDiaria" required min="0.01" step="0.01" placeholder="149.90">
+        </div>
+        <div class="field">
+          <label>Quilometragem</label>
+          <input type="number" id="veiculoKm" required min="0" step="1" placeholder="18500">
+        </div>
+        <div class="field">
+          <label>URL da Imagem</label>
+          <input type="text" id="veiculoImagem" placeholder="https://...">
+        </div>
+      </div>
+    </form>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="veiculoModal">Cancelar</button>
+      <button class="btn btn-primary" id="veiculoSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Salvar Veículo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CLIENTE ============ -->
+<div class="modal-overlay" id="clienteModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="clienteModalTitle">Novo Cliente</h3>
+      <button class="modal-close" data-close-modal="clienteModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="clienteForm" class="modal-body">
+      <input type="hidden" id="clienteId">
+      <div class="form-grid">
+        <div class="field field-full">
+          <label>Nome Completo</label>
+          <input type="text" id="clienteNome" required placeholder="Nome do cliente">
+        </div>
+        <div class="field">
+          <label>CPF</label>
+          <input type="text" id="clienteCpf" required maxlength="14" placeholder="000.000.000-00">
+        </div>
+        <div class="field">
+          <label>Data de Nascimento</label>
+          <input type="date" id="clienteNascimento" required>
+        </div>
+        <div class="field">
+          <label>Telefone</label>
+          <input type="text" id="clienteTelefone" required maxlength="15" placeholder="(00) 00000-0000">
+        </div>
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="clienteEmail" required placeholder="email@exemplo.com">
+        </div>
+        <div class="field">
+          <label>CEP</label>
+          <input type="text" id="clienteCep" maxlength="9" placeholder="00000-000">
+        </div>
+        <div class="field">
+          <label>Número da CNH</label>
+          <input type="text" id="clienteCnhNumero" required maxlength="11" placeholder="00000000000">
+        </div>
+        <div class="field">
+          <label>Categoria CNH</label>
+          <select id="clienteCnhCategoria" required>
+            <option value="">Selecione</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+            <option>E</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Validade da CNH</label>
+          <input type="date" id="clienteCnhValidade" required>
+        </div>
+      </div>
+    </form>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="clienteModal">Cancelar</button>
+      <button class="btn btn-primary" id="clienteSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Salvar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: LOCAÇÃO ============ -->
+<div class="modal-overlay" id="locacaoModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Nova Locação</h3>
+      <button class="modal-close" data-close-modal="locacaoModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="locacaoForm" class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Cliente</label>
+          <select id="locacaoCliente" required></select>
+        </div>
+        <div class="field">
+          <label>Veículo Disponível</label>
+          <select id="locacaoVeiculo" required></select>
+        </div>
+        <div class="field">
+          <label>Data de Início</label>
+          <input type="date" id="locacaoInicio" required>
+        </div>
+        <div class="field">
+          <label>Data Prevista de Retorno</label>
+          <input type="date" id="locacaoRetorno" required>
+        </div>
+        <div class="field">
+          <label>KM Inicial</label>
+          <input type="number" id="locacaoKmInicial" min="0" required>
+        </div>
+        <div class="field">
+          <label>Valor Estimado</label>
+          <input type="text" id="locacaoValorEstimado" readonly>
+        </div>
+      </div>
+    </form>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="locacaoModal">Cancelar</button>
+      <button class="btn btn-primary" id="locacaoSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Confirmar Locação</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: MANUTENÇÃO ============ -->
+<div class="modal-overlay" id="manutencaoModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Nova Manutenção</h3>
+      <button class="modal-close" data-close-modal="manutencaoModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="manutencaoForm" class="modal-body">
+      <div class="form-grid">
+        <div class="field field-full">
+          <label>Veículo (apenas disponíveis)</label>
+          <select id="manutencaoVeiculo" required></select>
+        </div>
+        <div class="field">
+          <label>Tipo de Manutenção</label>
+          <select id="manutencaoTipo" required>
+            <option value="">Selecione</option>
+            <option>Revisão Preventiva</option>
+            <option>Reparo Corretivo</option>
+            <option>Troca de Pneus</option>
+            <option>Funilaria e Pintura</option>
+            <option>Elétrica</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Custo Estimado (R$)</label>
+          <input type="number" id="manutencaoCusto" min="0" step="0.01" required>
+        </div>
+        <div class="field">
+          <label>Data de Início</label>
+          <input type="date" id="manutencaoInicio" required>
+        </div>
+        <div class="field">
+          <label>Previsão de Conclusão</label>
+          <input type="date" id="manutencaoPrevisao" required>
+        </div>
+        <div class="field field-full">
+          <label>Descrição</label>
+          <textarea id="manutencaoDescricao" rows="3" placeholder="Detalhes do serviço..."></textarea>
+        </div>
+      </div>
+    </form>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="manutencaoModal">Cancelar</button>
+      <button class="btn btn-primary" id="manutencaoSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Registrar Manutenção</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: DETALHES DO VEÍCULO ============ -->
+<div class="modal-overlay" id="veiculoDetalheModal">
+  <div class="modal modal-detail">
+    <div class="modal-head">
+      <h3>Ficha do Veículo</h3>
+      <button class="modal-close" data-close-modal="veiculoDetalheModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="veiculoDetalheBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="veiculoDetalheModal">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="inex.js"></script>
+</body>
+</html>
